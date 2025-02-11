@@ -1,18 +1,22 @@
 import os
 import json
+import pytz
 from google import genai
+from datetime import datetime
 from google.genai import types
 from rich.markdown import Markdown
 from rich.console import Console
 from dotenv import load_dotenv
 from Functions.memory import *
+from Functions.Data import chat_log, MK_File
+from Functions.Input import multiline_input
 
 
 # Load environment variables
 load_dotenv()
 # Initialize Rich console for better output formatting
 console = Console()
-console.print(Markdown("- Hi, how can I assist you?\n"))
+console.print(Markdown("- Hi, how can I assist you?"), style="bold Green")
 # Initialize the GenAI client
 client = genai.Client(api_key=os.getenv("GENAI_API_KEY"))
 # Get model
@@ -35,11 +39,12 @@ with open(commands_path, "r", encoding="utf-8") as f:
 # System instructions & configuration
 sys_instruct = commands["system_instructions"]
 config = types.GenerateContentConfig(system_instruction=sys_instruct, temperature=0.7)
-
+log_file = MK_File()
 
 # Main interaction loop
 while True:
-    prompt = input("\033[0m•\033[0m ")
+    # prompt = input("\033[0m•\033[0m ")
+    prompt = multiline_input()
 
     if prompt.lower() in keywords["farewells"]:
         console.print(Markdown("**See you again... Goodbye!** 👋"))
@@ -105,8 +110,11 @@ while True:
     history.append(f"AI: {response.text.strip()}")
     if len(history) > 5:  # Keep only the last 5 messages
         history.pop(0)
-
-    console.print("\n", Markdown(response.text), "\n")
+    time_stamp = formatted_time = datetime.now(pytz.timezone("Asia/Dhaka")).strftime(
+        "%Y-%m-%d_%H-%M-%S-%f"
+    )[:-3]
+    console.print("\n", Markdown(response.text))
+    chat_log(log_file, time_stamp, prompt, response.text)
 
 """
 Maintain only the last 5 messages.
