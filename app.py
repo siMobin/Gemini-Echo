@@ -38,7 +38,19 @@ with open(commands_path, "r", encoding="utf-8") as f:
 
 # System instructions & configuration
 sys_instruct = commands["system_instructions"]
-config = types.GenerateContentConfig(system_instruction=sys_instruct, temperature=0.7)
+config = types.GenerateContentConfig(
+    system_instruction=sys_instruct,
+    temperature=0.7,
+    tools=[
+        types.Tool(
+            google_search=types.GoogleSearchRetrieval(
+                dynamic_retrieval_config=types.DynamicRetrievalConfig(
+                    dynamic_threshold=0.6
+                )
+            )
+        )
+    ],
+)
 log_file = MK_File()
 
 # Main interaction loop
