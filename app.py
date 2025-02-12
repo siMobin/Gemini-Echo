@@ -7,7 +7,9 @@ from google.genai import types
 from rich.markdown import Markdown
 from rich.console import Console
 from dotenv import load_dotenv
+from Functions.Files import *
 from Functions.memory import *
+from Functions.Path import extract_path
 from Functions.Data import chat_log, MK_File
 from Functions.Input import multiline_input
 
@@ -53,10 +55,20 @@ config = types.GenerateContentConfig(
 )
 log_file = MK_File()
 
+
 # Main interaction loop
 while True:
     # prompt = input("\033[0m•\033[0m ")
     prompt = multiline_input()
+
+    try:
+        file_path = extract_path(prompt)
+        if file_path:
+            console.print(Markdown(f"**~File: {file_path}**"), style="i medium_orchid3")
+            info = read_file(file_path)
+            prompt = info + "\n" + prompt
+    except:
+        pass
 
     if prompt.lower() in keywords["farewells"]:
         console.print(Markdown("**See you again... Goodbye!** 👋"))
