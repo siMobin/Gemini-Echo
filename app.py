@@ -122,9 +122,9 @@ while True:
     history.append(f"AI: {response.text.strip()}")
     if len(history) > 5:  # Keep only the last 5 messages
         history.pop(0)
-    time_stamp = formatted_time = datetime.now(pytz.timezone("Asia/Dhaka")).strftime(
-        "%Y-%m-%d_%H-%M-%S-%f"
-    )[:-3]
+    time_stamp = datetime.now(pytz.timezone("Asia/Dhaka")).isoformat(
+        timespec="milliseconds"
+    )
     console.print("\n", Markdown(response.text))
     chat_log(log_file, time_stamp, prompt, response.text)
 

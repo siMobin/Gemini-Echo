@@ -35,16 +35,14 @@ import secrets
 from datetime import datetime
 
 
-formatted_time = datetime.now(pytz.timezone("Asia/Dhaka")).strftime(
-    "%Y-%m-%d_%H-%M-%S-%f"
-)[:-3]
+time = datetime.now(pytz.timezone("Asia/Dhaka"))
 
 
 def MK_File():
     os.makedirs("Data", exist_ok=True)
-    file_name = f"Data/{formatted_time}_{secrets.token_hex(16)}.yaml"
+    file_name = f"Data/{time.strftime("%Y-%m-%d_%H-%M-%S-%f")[:-3]}_{secrets.token_hex(16)}.yaml"
     with open(file_name, "w", encoding="utf-8") as file:
-        file.write(f"start: {formatted_time}\n")
+        file.write(f"Start: {time.isoformat(timespec="milliseconds")}\n")
         file.write(f"Hash: {secrets.token_hex(64)}\n\n\n")
 
     file.close()
@@ -55,6 +53,6 @@ def MK_File():
 def chat_log(file_name, time_stamp, user_input, output):
     # Open file in append mode
     with open(file_name, "a", encoding="utf-8") as file:
-        file.write(f"[{time_stamp}]:\n")
-        file.write(f"Input:\n\t{user_input.replace("\n","\n\t")}\n")
-        file.write(f"Output:\n\t{output.replace("\n","\n\t")}\n\n\n")
+        file.write(f"{time_stamp}:\n")
+        file.write(f"Input:  |\n  {user_input.replace('\n', '\n  ')}\n")
+        file.write(f"Output:  |\n  {output.replace('\n', '\n  ')}\n\n\n")
