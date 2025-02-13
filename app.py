@@ -40,26 +40,33 @@ with open(commands_path, "r", encoding="utf-8") as f:
 
 # System instructions & configuration
 sys_instruct = commands["system_instructions"]
-config = types.GenerateContentConfig(
-    system_instruction=sys_instruct,
-    temperature=0.7,
-    tools=[
-        types.Tool(
-            google_search=types.GoogleSearchRetrieval(
-                dynamic_retrieval_config=types.DynamicRetrievalConfig(
-                    dynamic_threshold=0.6
-                )
-            )
-        )
-    ],
-)
 log_file = MK_File()
 
 
 # Main interaction loop
 while True:
-    # prompt = input("\033[0m•\033[0m ")
     prompt = multiline_input()
+
+    # Check if the user is asking for code execution or Google search and set the appropriate tool for the appropriate response
+    if "/>" in prompt:
+        tools = [types.Tool(code_execution=types.ToolCodeExecution())]
+    else:
+        tools = [
+            types.Tool(
+                google_search=types.GoogleSearchRetrieval(
+                    dynamic_retrieval_config=types.DynamicRetrievalConfig(
+                        dynamic_threshold=0.6
+                    )
+                )
+            )
+        ]
+
+    config = types.GenerateContentConfig(
+        system_instruction=sys_instruct
+        + f'Current date/time: {datetime.now(pytz.timezone("Asia/Dhaka")).isoformat(timespec="milliseconds")}',
+        temperature=0.7,
+        tools=tools,
+    )
 
     try:
         file_path = extract_path(prompt)
@@ -103,9 +110,9 @@ while True:
                         break
         continue
 
-    # Maintain short-term memory (keep last 5 messages)
+    # Maintain short-term memory (keep last 20 messages)
     history.append(f"User: {prompt}")
-    if len(history) > 5:
+    if len(history) > 20:
         history.pop(0)
 
     # Build memory context
@@ -130,18 +137,37 @@ while True:
         contents=[full_prompt],
     )
 
+    # Extract executable code
+    generated_code = None
+
+    # Check if candidates exist
+    if hasattr(response, "candidates") and response.candidates:
+        for candidate in response.candidates:
+            if hasattr(candidate, "content") and hasattr(candidate.content, "parts"):
+                for part in candidate.content.parts:
+                    if hasattr(part, "executable_code") and part.executable_code:
+                        generated_code = part.executable_code.code
+                        break  # Exit loop once we find the code
+
+    # Execute the extracted code
+    if generated_code:
+        output = generated_code
+        exec(generated_code)  # Execute the code
+    else:
+        output = response.text
+
     # Store AI response in short-term memory
-    history.append(f"AI: {response.text.strip()}")
-    if len(history) > 5:  # Keep only the last 5 messages
+    history.append(f"AI: {output}")
+    if len(history) > 20:  # Keep only the last 20 messages
         history.pop(0)
     time_stamp = datetime.now(pytz.timezone("Asia/Dhaka")).isoformat(
         timespec="milliseconds"
     )
-    console.print("\n", Markdown(response.text))
-    chat_log(log_file, time_stamp, prompt, response.text)
+    console.print("\n", Markdown(output))
+    chat_log(log_file, time_stamp, prompt, output)
 
 """
-Maintain only the last 5 messages.
+Maintain only the last 20 messages.
 
 This approach limits the conversational history to reduce token usage,
 ensuring that the context remains concise and that the AI response generation is efficient.
