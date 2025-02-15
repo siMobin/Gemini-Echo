@@ -1,5 +1,6 @@
 import os
 import json
+import PIL
 import pytz
 from google import genai
 from datetime import datetime
@@ -68,6 +69,27 @@ while True:
         tools=tools,
     )
 
+    image = None
+    media_audio = None
+
+    if "$>" in prompt:
+        try:
+            media_path = extract_path(prompt)
+            if media_path and media_path.lower().endswith(tuple(keywords["images"])):
+                image = PIL.Image.open(media_path)
+                console.print(
+                    Markdown(f"**~Image: {media_path}**"), style="i medium_orchid3"
+                )
+            elif media_path and media_path.lower().endswith(tuple(keywords["audios"])):
+                media_audio = client.files.upload(file=media_path)
+                console.print(
+                    Markdown(f"**~Audio: {media_path}**"), style="i medium_orchid3"
+                )
+            else:
+                pass
+        except Exception as e:
+            pass
+
     try:
         file_path = extract_path(prompt)
         if file_path:
@@ -130,11 +152,17 @@ while True:
             f"Short-term Memory (recent conversation):\n{history}\n\nUser: {prompt}"
         )
 
+    if image:
+        content = [[full_prompt], image]
+    elif media_audio:
+        content = [[full_prompt], media_audio]
+    else:
+        content = [full_prompt]
     # Generate AI response
     response = client.models.generate_content(
         model=ai_model,
         config=config,
-        contents=[full_prompt],
+        contents=content,
     )
 
     # Extract executable code
@@ -151,7 +179,7 @@ while True:
 
     # Execute the extracted code
     if generated_code:
-        output = generated_code
+        output = "```python" + "\n" + generated_code + "```"
         exec(generated_code)  # Execute the code
     else:
         output = response.text
