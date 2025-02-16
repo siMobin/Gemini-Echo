@@ -74,6 +74,7 @@ while True:
 
     image = None
     media_audio = None
+    media_video = None
 
     if "$>" in prompt:
         try:
@@ -88,10 +89,14 @@ while True:
                 console.print(
                     Markdown(f"**~Audio: {media_path}**"), style="i medium_orchid3"
                 )
+            elif media_path and media_path.lower().endswith(tuple(keywords["videos"])):
+                media_video = upload_video(media_path, client)
             else:
                 pass
         except Exception as e:
             pass
+    else:
+        pass
 
     try:
         file_path = extract_path(prompt)
@@ -159,6 +164,8 @@ while True:
         content = [[full_prompt], image]
     elif media_audio:
         content = [[full_prompt], media_audio]
+    elif media_video:
+        content = [[full_prompt], media_video]
     else:
         content = [full_prompt]
     # Generate AI response

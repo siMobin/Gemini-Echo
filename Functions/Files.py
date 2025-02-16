@@ -3,6 +3,10 @@ import docx
 import pptx
 import fitz  # PyMuPDF
 import pandas as pd
+from rich.console import Console
+from rich.markdown import Markdown
+
+console = Console()
 
 
 def read_pptx(filepath):
@@ -57,6 +61,32 @@ def read_txt(filepath):
             return file.read()  # Return file content
     except Exception as e:
         pass
+
+
+def upload_video(video_file_name, client):
+    """
+    Upload a video file to the GenAI server and return the uploaded file object.
+
+    Parameters:
+        video_file_name (str): The path to the video file to be uploaded.
+        client (genai.Client): The GenAI client object to use for the upload.
+
+    Returns:
+        genai.File: The uploaded video file object.
+    """
+    video_file = client.files.upload(file=video_file_name)
+
+    while video_file.state == "PROCESSING":
+        console.print(Markdown("Video processing in progress..."), style="i cyan")
+        video_file = client.files.get(name=video_file.name)
+
+    if video_file.state == "FAILED":
+        raise ValueError(video_file.state)
+    console.print(
+        Markdown(f"Video uploaded successfully! {video_file.uri}"), style="i green"
+    )
+
+    return video_file
 
 
 def read_file(filepath):
