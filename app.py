@@ -48,9 +48,12 @@ log_file = MK_File()
 while True:
     prompt = multiline_input()
 
-    # Check if the user is asking for code execution or Google search and set the appropriate tool for the appropriate response
-    if "/>" in prompt:
-        tools = [types.Tool(code_execution=types.ToolCodeExecution())]
+    # Tricky way to handle audio and code execution
+    if "$>" not in prompt:
+        tools = [
+            {"google_search": {}},  # Enables Google Search tool
+            {"code_execution": {}},  # Enables code execution
+        ]
     else:
         tools = [
             types.Tool(
@@ -165,24 +168,21 @@ while True:
         contents=content,
     )
 
-    # Extract executable code
-    generated_code = None
+    # Process the response to format it naturally
+    full_response = ""
+    # print(response, "\n\n")  # Debugging purpose
+    if response.candidates:
+        for part in response.candidates[0].content.parts:
+            if part.executable_code:  # AI-generated code
+                full_response += "\n\n"
+                full_response += f"```python\n{part.executable_code.code}\n```\n\n"
+            elif part.code_execution_result:  # Execution output
+                full_response += f"\n{part.code_execution_result.output}\n\n"
+            elif part.text:  # Normal text response
+                full_response += f"{part.text}\n\n"
 
-    # Check if candidates exist
-    if hasattr(response, "candidates") and response.candidates:
-        for candidate in response.candidates:
-            if hasattr(candidate, "content") and hasattr(candidate.content, "parts"):
-                for part in candidate.content.parts:
-                    if hasattr(part, "executable_code") and part.executable_code:
-                        generated_code = part.executable_code.code
-                        break  # Exit loop once we find the code
-
-    # Execute the extracted code
-    if generated_code:
-        output = "```python" + "\n" + generated_code + "```"
-        exec(generated_code)  # Execute the code
-    else:
-        output = response.text
+    # Put the final structured response
+    output = full_response.strip()
 
     # Store AI response in short-term memory
     history.append(f"AI: {output}")
