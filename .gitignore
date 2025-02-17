@@ -1,0 +1,9 @@
+.vscode/*
+.env
+__pycache__
+temp*
+Gemini Echo/*
+demo/*
+memory.json
+
+# Temporary Ignored

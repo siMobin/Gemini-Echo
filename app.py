@@ -19,7 +19,6 @@ from Functions.Input import multiline_input
 load_dotenv()
 # Initialize Rich console for better output formatting
 console = Console()
-console.print(Markdown("- Hi, how can I assist you?"), style="bold Green")
 # Initialize the GenAI client
 client = genai.Client(api_key=os.getenv("GENAI_API_KEY"))
 # Get model
@@ -43,6 +42,19 @@ with open(commands_path, "r", encoding="utf-8") as f:
 sys_instruct = commands["system_instructions"]
 log_file = MK_File()
 
+if os.getenv("STARTUP") == "true":
+    startup = client.models.generate_content(
+        model=ai_model,
+        config=types.GenerateContentConfig(
+            system_instruction=sys_instruct
+            + f'Current date/time: {datetime.now(pytz.timezone("Asia/Dhaka")).isoformat(timespec="milliseconds")}',
+            temperature=os.getenv("STARTUP_TEMPERATURE"),
+        ),
+        contents=commands["startup"],
+    )
+    console.print("\n", Markdown(startup.text), "\n")
+else:
+    console.print(Markdown("- Hi, What are you doing?"), style="bold Yellow")
 
 # Main interaction loop
 while True:
