@@ -3,6 +3,7 @@
 __pycache__
 temp*
 Gemini Echo/*
+.venv/*
 demo/*
 memory.json
 
