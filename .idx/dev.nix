@@ -13,10 +13,15 @@
   ];
 
   # Sets environment variables in the workspace
-  env = {}; # Not recomanded
+  env = { }; # Not recommended
   idx = {
     # Search for the extensions you want on https://open-vsx.org/ and use "publisher.id"
     extensions = [
+      "ms-python.black-formatter"
+      "ms-python.python"
+      "ms-python.debugpy"
+      "visualstudioexptteam.vscodeintellicode"
+      "ms-python.vscode-pylance"
       # "vscodevim.vim"
     ];
 
@@ -24,16 +29,7 @@
     previews = {
       enable = true;
       previews = {
-        # web = {
-        #   # Example: run "npm run dev" with PORT set to IDX's defined port for previews,
-        #   # and show it in IDX's web preview panel
-        #   command = ["npm" "run" "dev"];
-        #   manager = "web";
-        #   env = {
-        #     # Environment variables to set for your server
-        #     PORT = "$PORT";
-        #   };
-        # };
+        # Web preview
       };
     };
 
@@ -41,13 +37,18 @@
     workspace = {
       # Runs when a workspace is first created
       onCreate = {
-        # Example: install JS dependencies from NPM
-        # npm-install = "npm install";
+        # SETUP: Create the environment when created the workspace
+        install-git-lfs = "git lfs install";
+        pull-LF = "git lfs pull";
+        put-env = "cat .env.example > .env";
+        setup = "python -m venv .venv && sleep 2 && bash -c '. .venv/bin/activate && sleep 4 && pip install -r requirements.txt'";
       };
       # Runs when the workspace is (re)started
       onStart = {
-        # Example: start a background task to watch and re-build backend code
-        # watch-backend = "npm run watch-backend";
+        # Example: start a background task
+        pull = "git pull";
+        pull-LF = "git lfs pull";
+        setup = "sleep 1 && . .venv/bin/activate && sleep 3 && pip install -r requirements.txt";
       };
     };
   };
