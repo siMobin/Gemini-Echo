@@ -49,7 +49,9 @@ To set up the project,
    - **`STARTUP_TEMPERATURE`**: Temperature for the startup response.
 4. Run the application using `run.bat` (on Windows) or `run.sh` (on Linux/Mac).
 
-> [!NOTE]  
+> [!NOTE]
+> You may need to install `git lfs` to work `instructions` file.
+>
 > `setup.ps1` may not work on **Linux/Mac**.  
 > _Try `PowerShell 7.x.x` on that case._  
 > You may need to setup manually on that case.
@@ -62,6 +64,13 @@ To set up the project,
 > - Install dependencies: _`pip install -r requirements.txt`_
 > - Set up the environment variables in the `.env` file
 > - Run the application: _`python app.py`_
+
+###
+
+> [!TIP]
+> You can use Google _[`Project IDX`](https://idx.google.com/)_ to run it in a virtual workspace.
+>
+> **IDX Config FIle:** _[.idx/dev.nix](.idx/dev.nix)_
 
 ---
 
@@ -83,16 +92,15 @@ Once the application is running, you can interact with Gemini by typing commands
 >
 > **Example:**
 >
-> ```json
+> ````json
 > {
->   "name": "Your Name",
->   "age": 'Your Age',
->   "hobbies": "coding, reading, writing, listening to music, playing games, watching movies, and so on"
-> .....
-> .......
-> ..
+>   "```json\n{\n  \"name\"": "\"John Doe\"\n}\n```",
+>   "```json\n{\n  \"age\"": "\"25\"\n}\n```",
+>   "```json\n{\n  \"brother\"": "\"John Eoe\"\n}\n```",
+>   "```json\n{\n  \"likes\"": "\"Cricket\"\n}\n```",
+>   "```json\n{\n  \"hobbies\"": "\"Coding, Sleeping\"\n}\n```"
 > }
-> ```
+> ````
 
 > [!TIP]
 > Use this **chatbot** as your companion when feeling _lonely_.  
@@ -109,6 +117,8 @@ Once the application is running, you can interact with Gemini by typing commands
   - Python 3.12 or later with pip
 - **Dependencies**
   - See [`requirements.txt`](./requirements.txt)
+- **Additional Components**
+  - Git LFS
 
 ---
 
