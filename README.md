@@ -1,15 +1,15 @@
 <!-- ## Gemini Echo -->
-<h1  align="center">Gemini Echo</h1>
+<h1  align="center"><a href="https://github.com/siMobin/Gemini-Echo">Gemini Echo</a></h1>
 <img src="https://github.com/siMobin/siMobin/raw/main/animated-flame-01.gif" width="21px" align="left"/>
 <img src="https://github.com/siMobin/siMobin/raw/main/animated-flame-01.gif" width="21px" align="right"/>
 <div style="text-align: center; font-style: italic" align="center" padding="60px">
-<b>Gemini Echo</b>  is a conversational <b>AI</b> that interacts with its user. It understands images, videos, audio, and documents along with text. It can also memorize things and remember them for future use.
+<b>Gemini Echo</b> is a conversational AI chatbot that interacts with its user as a <a href="#usage">♀</a> partner <code>(system_instructions)</code>. It can understand and analyze text, images, videos, audio, and documents. Additionally, it has memorization capabilities, allowing it to retain and recall information for the future.
 </div>
 
 ####
 
 > [!WARNING]
-> In this project, the system [instructions](instructions/commands.json) are designed to make this AI behave as a **girl** and act as a **partner**. It can respond to **adult** or **sexual** content.
+> In this project, the system [instructions](instructions/commands.json) are designed to make this AI behave as a **girl** and act as a **partner**. It can respond to **adult** or **sexually explicit** content.
 >
 > ```text
 > Gemini is an 18-year-old girl who grows up on an IT farm.
@@ -27,9 +27,6 @@ The project is organized into the following directories and files:
 - `instructions`: Stores JSON files containing system instructions, commands, and keywords.
 - `Data`: Stores conversation data in YAML files.
 - `app.py`: Entry point of the application.
-- `memory.json`: Stores long-term memory in JSON format.
-- `setup.ps1`: A PowerShell script for setting up the project environment, including virtual environment creation and dependency installation.
-- `run.bat` / `run.sh`: Scripts for running the application on Windows and Linux/Mac, respectively.
 
 ---
 
@@ -43,10 +40,10 @@ To set up the project,
    - It will automatically create a virtual environment named **Gemini Echo** and install the required dependencies using pip.
    - It also activates the virtual environment for you.
 3. Set up the environment variables in the `.env` file:
-   - **`GENAI_API_KEY`**: Your Google GenAI API key.
-   - **`GEMINI_MODEL_ID`**: The ID of the model you want to use.
-   - **`STARTUP`**: _`true`_ or _`false`_ to enable/disable the startup response.
-   - **`STARTUP_TEMPERATURE`**: Temperature for the startup response.
+   - **`GENAI_API_KEY`**: Your Google [GenAI API](https://ai.google.dev/gemini-api/docs/quickstart?lang=python) key.
+   - **`GEMINI_MODEL_ID`**: [Model](https://aistudio.google.com/) you want to use.
+   - **`WARM_AT_STARTUP`**: _`true`_ or _`false`_ to enable/disable the startup response.
+   - **`STARTUP_TEMPERATURE`, `TEMPERATURE`**: _`(float - 0.0 to 2.0)`_ Higher values give _AI_ more freedom.
 4. Run the application using `run.bat` (on Windows) or `run.sh` (on Linux/Mac).
 
 > [!NOTE]
@@ -59,8 +56,12 @@ To set up the project,
 **Setup manually...**
 
 > - Clone the repository: _`git clone git@github.com:siMobin/Gemini-Echo.git`_
+>   - Pull files from git LFS
+>     - _`cd Gemini-Echo`_
+>     - _`git lfs install`_
+>     - _`git lfs pull`_
 > - Create a virtual environment: _`python -m venv "Gemini Echo"`_ or _`virtualenv "Gemini Echo"`_
-> - Activate the virtual environment: _`.\Gemini Echo\Scripts\Activate.ps1`_
+> - Activate the virtual environment: _`.\Gemini Echo\Scripts\Activate.ps1`\_\_(windows)_, _`source "Gemini Echo/bin/activate"`\_\_(linux)_
 > - Install dependencies: _`pip install -r requirements.txt`_
 > - Set up the environment variables in the `.env` file
 > - Run the application: _`python app.py`_
@@ -79,8 +80,7 @@ To set up the project,
 Once the application is running, you can interact with Gemini by typing commands or just asking questions.
 
 - **Commands**:
-  - `\>>` Insert any file (text, csv, pdf, pptx, docx, xls, xlsx, ...).
-  - `$>` Insert media (audio, video, or image).
+  - `/>>` _or_ `$>` Insert any file _(path - relative or absolute)_ into the conversation.
   - Some **memorization** commands like `remember`, `mind it`, `note that` etc are used to store long-term memory. _See [instructions](instructions/keywords.json) for details._
 
 > [!IMPORTANT]
@@ -105,6 +105,8 @@ Once the application is running, you can interact with Gemini by typing commands
 > [!TIP]
 > Use this **chatbot** as your companion when feeling _lonely_.  
 > It can help you cope with _loneliness_.
+
+---
 
 ### System Requirements
 
@@ -137,6 +139,7 @@ This project uses Google [**GenAI**](https://ai.google.dev/) API for generating 
 
 **Extras**
 
+- [GitHub/Python-GenAI](https://github.com/googleapis/python-genai)
 - [API Docs](https://ai.google.dev/gemini-api/docs/quickstart?lang=python)
 - [AI Studio](https://aistudio.google.com/)
 - [Multimodal Live API in _Google AI Studio_](https://aistudio.google.com/app/live)
