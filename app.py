@@ -42,7 +42,7 @@ with open(commands_path, "r", encoding="utf-8") as f:
 sys_instruct = commands["system_instructions"]
 log_file = MK_File()
 
-if os.getenv("STARTUP") == "true":
+if os.getenv("WARM_AT_STARTUP") == "true":
     startup = client.models.generate_content(
         model=ai_model,
         config=types.GenerateContentConfig(
@@ -53,15 +53,17 @@ if os.getenv("STARTUP") == "true":
         contents=commands["startup"],
     )
     console.print("\n", Markdown(startup.text), "\n")
+    chat_log(log_file, "Startup", "@startup=True", startup.text)
+    history.append(f"AI: {startup.text}")
 else:
-    console.print(Markdown("- Hi, What are you doing?"), style="bold Yellow")
+    console.print(Markdown("- Hay, What are you doing?"), style="bold Yellow")
 
 # Main interaction loop
 while True:
     prompt = multiline_input()
 
-    # Tricky way to handle audio and code execution
-    if "$>" not in prompt:
+    # Tricky way to handle files and code execution
+    if "$>" not in prompt and "/>>" not in prompt:
         tools = [
             {"google_search": {}},  # Enables Google Search tool
             {"code_execution": {}},  # Enables code execution
@@ -80,7 +82,7 @@ while True:
     config = types.GenerateContentConfig(
         system_instruction=sys_instruct
         + f'Current date/time: {datetime.now(pytz.timezone("Asia/Dhaka")).isoformat(timespec="milliseconds")}',
-        temperature=0.7,
+        temperature=os.getenv("TEMPERATURE"),
         tools=tools,
     )
 
@@ -88,35 +90,32 @@ while True:
     media_audio = None
     media_video = None
 
-    if "$>" in prompt:
+    if "$>" in prompt or "/>>" in prompt:
         try:
-            media_path = extract_path(prompt)
-            if media_path and media_path.lower().endswith(tuple(keywords["images"])):
-                image = PIL.Image.open(media_path)
+            file_path = extract_path(prompt)
+            if file_path and file_path.lower().endswith(tuple(keywords["images"])):
+                image = PIL.Image.open(file_path)
                 console.print(
-                    Markdown(f"**~Image: {media_path}**"), style="i medium_orchid3"
+                    Markdown(f"**~Image: {file_path}**"), style="i medium_orchid3"
                 )
-            elif media_path and media_path.lower().endswith(tuple(keywords["audios"])):
-                media_audio = client.files.upload(file=media_path)
+            elif file_path and file_path.lower().endswith(tuple(keywords["audios"])):
+                media_audio = client.files.upload(file=file_path)
                 console.print(
-                    Markdown(f"**~Audio: {media_path}**"), style="i medium_orchid3"
+                    Markdown(f"**~Audio: {file_path}**"), style="i medium_orchid3"
                 )
-            elif media_path and media_path.lower().endswith(tuple(keywords["videos"])):
-                media_video = upload_video(media_path, client)
+            elif file_path and file_path.lower().endswith(tuple(keywords["videos"])):
+                media_video = upload_video(file_path, client)
+            elif file_path and file_path.lower().endswith(tuple(keywords["documents"])):
+                console.print(
+                    Markdown(f"**~File: {file_path}**"), style="i medium_orchid3"
+                )
+                info = read_file(file_path)
+                prompt = info + "\n" + prompt
             else:
-                pass
+                console.print(Markdown("~ Invalid file format"), style="i yellow")
         except Exception as e:
             pass
     else:
-        pass
-
-    try:
-        file_path = extract_path(prompt)
-        if file_path:
-            console.print(Markdown(f"**~File: {file_path}**"), style="i medium_orchid3")
-            info = read_file(file_path)
-            prompt = info + "\n" + prompt
-    except:
         pass
 
     if prompt.lower() in keywords["farewells"]:

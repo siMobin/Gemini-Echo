@@ -34,7 +34,7 @@ import pytz
 import secrets
 from datetime import datetime
 
-
+__tab__ = " " * 4
 time = datetime.now(pytz.timezone("Asia/Dhaka"))
 
 
@@ -54,5 +54,9 @@ def chat_log(file_name, time_stamp, user_input, output):
     # Open file in append mode
     with open(file_name, "a", encoding="utf-8") as file:
         file.write(f"{time_stamp}:\n")
-        file.write(f"Input:  |\n  {user_input.replace('\n', '\n  ')}\n")
-        file.write(f"Output:  |\n  {output.replace('\n', '\n  ')}\n\n\n")
+        file.write(
+            f"{__tab__}Input:{__tab__}|\n{__tab__*2}{user_input.replace('\n', f'\n{__tab__*2}')}\n"
+        )
+        file.write(
+            f"{__tab__}Output:{__tab__}|\n{__tab__*2}{output.replace('\n', f'\n{__tab__*2}')}\n\n\n"
+        )

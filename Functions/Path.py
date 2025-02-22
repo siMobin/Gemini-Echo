@@ -3,8 +3,8 @@ import os
 
 def extract_path(input_string):
     # Check if the input contains any of the path indicators
-    if "\\>>" in input_string:
-        path = input_string.split("\\>>", 1)[1].strip()
+    if "/>>" in input_string:
+        path = input_string.split("/>>", 1)[1].strip()
     elif "$>" in input_string:
         path = input_string.split("$>", 1)[1].strip()
     else:
@@ -16,6 +16,8 @@ def extract_path(input_string):
     else:
         path = path.split(" ", 1)[0]  # Keep only the first word if no quotes
 
+    if path.startswith("/"):
+        path = path.replace("/", "")  # Remove the leading slash
     # Ensure valid absolute or relative path
     if path.startswith("\\") or (len(path) > 1 and path[1] == ":"):
         return path  # Absolute path
