@@ -1,4 +1,6 @@
 instructions/* filter=lfs diff=lfs merge=lfs -text
 *.md export-ignore
+.idx/ export-ignore
+.github/ export-ignore
 .gitignore export-ignore
 .gitattributes export-ignore
