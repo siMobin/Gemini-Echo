@@ -41,11 +41,15 @@ with open(commands_path, "r", encoding="utf-8") as f:
 sys_instruct = commands["system_instructions"]
 
 
-def process_prompt(prompt, log_file):
-    # global client, ai_model, keywords, commands, memory, history
-
+def process_prompt(prompt, log_file, image=None, media_audio=None, media_video=None):
     # Tricky way to handle files and code execution
-    if "$>" not in prompt and "/>>" not in prompt:
+    if (
+        "$>" not in prompt
+        and "/>>" not in prompt
+        and image == None
+        and media_audio == None
+        and media_video == None
+    ):
         tools = [
             {"google_search": {}},  # Enables Google Search tool
             {"code_execution": {}},  # Enables code execution
@@ -67,10 +71,6 @@ def process_prompt(prompt, log_file):
         temperature=os.getenv("TEMPERATURE"),
         tools=tools,
     )
-
-    image = None
-    media_audio = None
-    media_video = None
 
     if "$>" in prompt or "/>>" in prompt:
         try:
@@ -103,7 +103,7 @@ def process_prompt(prompt, log_file):
     if prompt.lower() in keywords["farewells"]:
         console.print(Markdown("**See you again... Goodbye!** 👋"))
         # break
-        return
+        exit()
 
     # Store memory for user-specific data
     if any(keyword in prompt.lower() for keyword in keywords["memorization"]):
@@ -125,12 +125,12 @@ def process_prompt(prompt, log_file):
                         console.print("Memory updated!", style="i Cyan")
                         # console.print(Markdown("**Got it! I'll remember that...**"))
                         # Generate AI response to confirm memory update
-                        response = client.models.generate_content(
-                            model=ai_model,
-                            config=config,
-                            contents=[prompt],
-                        )
-                        console.print("\n", Markdown(response.text), "\n")
+                        # response = client.models.generate_content(
+                        #     model=ai_model,
+                        #     config=config,
+                        #     contents=[prompt],
+                        # )
+                        # console.print("\n", Markdown(response.text), "\n")
                         break
         # continue
 

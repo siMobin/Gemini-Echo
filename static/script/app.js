@@ -1,34 +1,43 @@
 const sendButton = document.getElementById('send-button');
 const messageInput = document.getElementById('message-input');
 const messagesContainer = document.getElementById('messages');
+const mediaInput = document.getElementById('media-input'); // file input for media
 
 sendButton.addEventListener('click', sendMessage);
 
-// Handle the "Enter" and "Shift+Enter" behavior
 messageInput.addEventListener('keydown', function (event) {
     if (event.key === 'Enter' && !event.shiftKey) {
-        // Prevent default Enter behavior (which is to add a new line)
         event.preventDefault();
         sendMessage();
     } else if (event.key === 'Enter' && event.shiftKey) {
-        // Allow Shift+Enter to insert a new line
         messageInput.value += '\n';
     }
 });
 
 function sendMessage() {
     const message = messageInput.value.trim();
-    if (message === '') return;
+    const mediaFile = mediaInput ? mediaInput.files[0] : null; // Safely check if mediaInput exists
+
+    if (message === '' && !mediaFile) return; // Don't send if message and media are both empty
 
     addMessage(message, 'user');
-    messageInput.value = '';
+    messageInput.value = ''; // Clear the message input
 
+    const formData = new FormData();
+    formData.append("message", message); // Append message to FormData
+    if (mediaFile) {
+        formData.append("media", mediaFile); // Attach the media file if it exists
+    }
+
+    // Debugging: Log FormData to check if it's sending correctly
+    for (let [key, value] of formData.entries()) {
+        console.log(`${key}: ${value}`);
+    }
+
+    // Send the data
     fetch('/chat', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ message: message })
+        body: formData // Send the form data (including media if selected)
     })
         .then(response => response.json())
         .then(data => {
@@ -39,10 +48,13 @@ function sendMessage() {
         .catch(error => {
             console.error('Error:', error);
         });
+
+    mediaInput.value = '';  // Reset the media input field after submitting
 }
 
+
 function addMessage(message, sender) {
-    const messageElement = document.createElement('div');
+    const messageElement = document.createElement('md-block');
     messageElement.classList.add('message');
     messageElement.classList.add(`${sender}-message`);
     messageElement.textContent = message;

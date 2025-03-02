@@ -5,21 +5,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chatbot</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
     <link rel="stylesheet" href="{{ url_for('static', filename='style/app.css') }}">
 </head>
 
 <body>
-
+    <div class="side">
+        <video src="{{ url_for('static', filename='video.mp4') }}" autoplay loop muted preload="none"></video>
+    </div>
     <div id="chat-container">
         <div id="messages"></div>
         <div id="input-container">
+            <span class="files">
+                <input type="file" id="media-input" accept="image/*,audio/*,video/*">
+            </span>
             <textarea type="text" id="message-input" autofocus placeholder="Type a message"></textarea>
-            <button id="send-button">Send</button>
+            <button id="send-button"><i class="fa-solid fa-arrow-up"></i></button>
         </div>
     </div>
 
     <script src="{{ url_for('static', filename='script/app.js') }}"></script>
-
+    <script type="module" src="https://md-block.verou.me/md-block.js"></script>
 </body>
 
 </html>
