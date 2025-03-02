@@ -7,4 +7,9 @@ Gemini Echo/*
 demo/*
 memory.json
 
+# web app
+!templates
+*.css
+*.map
+
 # Temporary Ignored
