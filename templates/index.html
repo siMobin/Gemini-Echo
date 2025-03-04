@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chatbot</title>
+    <link rel="icon" href="{{ url_for('static', filename='couple-min.svg') }}" type="image/png">
+    <title>{{greeting}}</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
     <link rel="stylesheet" href="{{ url_for('static', filename='style/app.css') }}">
 </head>
@@ -12,14 +13,23 @@
 <body>
     <div class="side">
         <video src="{{ url_for('static', filename='video.mp4') }}" autoplay loop muted preload="none"></video>
+        <div class="content">
+            <img src="{{ url_for('static', filename='couple-min.svg') }}" loading="lazy" alt="">
+            <md-block>{{pre_1}}</md-block>
+        </div>
     </div>
     <div id="chat-container">
-        <div id="messages"></div>
+        <div id="messages">
+            <div class="empty">
+                <img src="{{ url_for('static', filename='couple-min.svg') }}" loading="lazy" alt="">
+                <h3>{{greeting}}<i class="fa-solid fa-heart fa-beat-fade"></i></h3>
+            </div>
+        </div>
         <div id="input-container">
             <span class="files">
                 <input type="file" id="media-input" accept="image/*,audio/*,video/*">
             </span>
-            <textarea type="text" id="message-input" autofocus placeholder="Type a message"></textarea>
+            <textarea type="text" id="message-input" autofocus placeholder="Type a message..."></textarea>
             <button id="send-button"><i class="fa-solid fa-arrow-up"></i></button>
         </div>
     </div>

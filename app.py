@@ -1,6 +1,5 @@
 import os
 import json
-import PIL
 import pytz
 from google import genai
 from datetime import datetime
@@ -10,7 +9,6 @@ from rich.console import Console
 from dotenv import load_dotenv
 from Functions.Files import *
 from Functions.memory import *
-from Functions.Path import extract_path
 from Functions.Data import chat_log, MK_File
 from Functions.Input import multiline_input
 from Functions.Main_Response import process_prompt

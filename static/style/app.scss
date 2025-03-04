@@ -3,6 +3,16 @@ $green: rgb(0, 92, 75);
 $gray: rgb(32, 44, 51);
 $lite_gray: rgb(42, 57, 66);
 
+@mixin pre-load-image {
+    width: 50%;
+    height: auto;
+    padding: .5em 0;
+    border-radius: 40% 40% 50% 50%;
+    backdrop-filter: blur(1px);
+    background-image: radial-gradient(circle, rgba($bg, 0.8) 0%, rgba($bg, 0) 100%);
+    box-shadow: 0 0 150px rgba($bg, 1);
+}
+
 // ..........scrollbar..........
 // ...........width........
 ::-webkit-scrollbar {
@@ -68,7 +78,7 @@ body {
                 object-fit: cover;
                 object-position: center;
                 // blur the video
-                filter: blur(15px);
+                filter: blur(20px);
             }
 
             &::before {
@@ -79,7 +89,36 @@ body {
                 left: 0;
                 width: 100%;
                 height: 100%;
-                background-color: rgba($bg, .9);
+                background-color: rgba($bg, .95);
+            }
+
+            .content {
+                display: flex;
+                flex-wrap: wrap;
+                align-items: center;
+                justify-content: center;
+                flex-direction: column;
+                gap: 2em;
+                position: absolute;
+                inset: 0;
+                z-index: 9999;
+                width: 100%;
+                height: 100%;
+                max-width: 100%;
+
+                md-block {
+                    max-width: 70%;
+                    word-wrap: break-word;
+
+                    p {
+                        text-align: justify;
+                    }
+                }
+
+                img {
+                    @include pre-load-image;
+                    max-width: 400px !important;
+                }
             }
 
         }
@@ -87,7 +126,7 @@ body {
 }
 
 #chat-container {
-    background-image: linear-gradient(rgba($bg, .6), rgba($bg, .6)), url("../bg-min.svg");
+    background-image: linear-gradient(rgba($bg, .6), rgba($bg, .6)), url("../bg-min.svg"), linear-gradient(rgba($bg, 1), rgba($bg, 1));
     background-size: cover;
     // background-color: $bg;
     width: 550px;
@@ -126,12 +165,37 @@ body {
         }
     }
 
+    :has(.message) {
+        .empty {
+            display: none;
+        }
+    }
+
+    :not(:has(.message)) {
+        .empty {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+
+            .fa-beat-fade {
+                color: red;
+                margin-left: .5em;
+            }
+
+            img {
+                @include pre-load-image;
+            }
+        }
+    }
+
     .message {
         display: flex;
         padding: .5em .8em;
         border-radius: 12px;
         margin: 1em;
-        margin-bottom: 1em;
+        margin-bottom: .5em;
         width: max-content;
         max-width: 70%;
 

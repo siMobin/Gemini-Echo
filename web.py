@@ -1,29 +1,48 @@
 import os
 import PIL
 import json
+from requests import get
 from google import genai
+from dotenv import load_dotenv
 from Functions.Data import MK_File
 from Functions.Files import upload_video
 from werkzeug.utils import secure_filename
 from Functions.Main_Response import process_prompt
 from flask import Flask, render_template, request, jsonify
 
+
+load_dotenv()
 client = genai.Client(api_key=os.getenv("GENAI_API_KEY"))
 app = Flask(__name__)
 log_file = MK_File()
+# Raw URL of the README file
+url = "https://raw.githubusercontent.com/siMobin/Gemini-Echo/a69734c328b3ae6c0df35b704fe62671fcde65e7/README.md"
+pre = get(url)
 
 # Set the upload folder for media files
 UPLOAD_FOLDER = "data"
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
-# Load keywords.json to detect file types
 with open("instructions/keywords.json") as f:
     keywords = json.load(f)
+
+with open("instructions/commands.json") as f:
+    commands = json.load(f)
+
+
+# Check if the request was successful
+if pre.status_code == 200:
+    pre_1 = "\n".join(pre.text.split("\n")[8:19])
+else:
+    pass
+
+greeting = commands["web_startup"]
+response = process_prompt(greeting, log_file)
 
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    return render_template("index.html", greeting=response, pre_1=pre_1)
 
 
 @app.route("/chat", methods=["POST"])
@@ -79,4 +98,4 @@ def chat():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=80, debug=True)
+    app.run(host=os.getenv("host"), port=os.getenv("port"), debug=os.getenv("debug"))
