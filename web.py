@@ -8,7 +8,7 @@ from Functions.Data import MK_File
 from Functions.Files import upload_video
 from werkzeug.utils import secure_filename
 from Functions.Main_Response import process_prompt
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, url_for
 
 
 load_dotenv()
@@ -20,7 +20,7 @@ url = "https://raw.githubusercontent.com/siMobin/Gemini-Echo/a69734c328b3ae6c0df
 pre = get(url)
 
 # Set the upload folder for media files
-UPLOAD_FOLDER = "data"
+UPLOAD_FOLDER = "static/uploads"
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
 with open("instructions/keywords.json") as f:
@@ -61,6 +61,7 @@ def chat():
     image = None
     media_audio = None
     media_video = None
+    media_path = None
 
     # Check if the file is valid and allowed
     if media_file:
@@ -72,6 +73,7 @@ def chat():
         # Save the file to the server
         file_path = os.path.join(UPLOAD_FOLDER, filename)
         media_file.save(file_path)
+        media_path = url_for("static", filename=f"uploads/{filename}")  # Adjusted path
 
         # Check file type and set the appropriate file path variable
         if file_extension in keywords["images"]:
@@ -94,7 +96,7 @@ def chat():
         media_video=media_video,
     )
 
-    return jsonify({"response": response})
+    return jsonify({"response": response, "media": media_path})
 
 
 if __name__ == "__main__":

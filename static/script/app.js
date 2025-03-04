@@ -14,50 +14,83 @@ messageInput.addEventListener('keydown', function (event) {
     }
 });
 
+
+
 function sendMessage() {
     const message = messageInput.value.trim();
-    const mediaFile = mediaInput ? mediaInput.files[0] : null; // Safely check if mediaInput exists
+    const mediaFile = mediaInput.files.length > 0 ? mediaInput.files[0] : null;
 
-    if (message === '' && !mediaFile) return; // Don't send if message and media are both empty
+    if (!message && !mediaFile) return;
 
-    addMessage(message, 'user');
-    messageInput.value = ''; // Clear the message input
+    // Convert media file to a temporary URL for preview
+    const mediaURL = mediaFile ? URL.createObjectURL(mediaFile) : null;
 
+    // Ensure message and media stay together under 'user'
+    addMessage(message, 'user', mediaURL, mediaFile ? mediaFile.name : null);
+
+    // Clear input fields
+    messageInput.value = '';
+    mediaInput.value = '';
+
+    // Send to server
     const formData = new FormData();
-    formData.append("message", message); // Append message to FormData
+    formData.append("message", message);
     if (mediaFile) {
-        formData.append("media", mediaFile); // Attach the media file if it exists
+        formData.append("media", mediaFile);
     }
 
-    // Debugging: Log FormData to check if it's sending correctly
-    for (let [key, value] of formData.entries()) {
-        console.log(`${key}: ${value}`);
-    }
-
-    // Send the data
     fetch('/chat', {
         method: 'POST',
-        body: formData // Send the form data (including media if selected)
+        body: formData
     })
         .then(response => response.json())
         .then(data => {
             if (data.response) {
-                addMessage(data.response, 'bot');
+                addMessage(data.response, 'bot', data.media || null, data.mediaName || null);
             }
         })
         .catch(error => {
             console.error('Error:', error);
         });
-
-    mediaInput.value = '';  // Reset the media input field after submitting
 }
 
+function addMessage(message, sender, media = null, mediaName = null) {
+    const messageWrapper = document.createElement('section');
+    messageWrapper.classList.add('message', `${sender}-message`);
 
-function addMessage(message, sender) {
-    const messageElement = document.createElement('md-block');
-    messageElement.classList.add('message');
-    messageElement.classList.add(`${sender}-message`);
-    messageElement.textContent = message;
-    messagesContainer.appendChild(messageElement);
+    // Append text if available
+    if (message) {
+        const textElement = document.createElement('md-block');
+        textElement.textContent = message;
+        messageWrapper.appendChild(textElement);
+    }
+
+    // Append media
+    if (media && mediaName) {
+        const mediaContainer = document.createElement('div');
+        mediaContainer.classList.add('media-container');
+
+        if (message) {
+            mediaContainer.appendChild(document.createElement('br')); // Add break if there's text
+        }
+
+        const mediaElement = document.createElement('div');
+        const extension = mediaName.split('.').pop().toLowerCase();
+
+        if (['png', 'jpg', 'jpeg', 'gif', 'webp'].includes(extension)) {
+            mediaElement.innerHTML = `<img src="${media}" alt="">`;
+        } else if (['mp4', 'webm', 'ogg'].includes(extension)) {
+            mediaElement.innerHTML = `<video controls><source src="${media}" type="video/${extension}"></video>`;
+        } else if (['mp3', 'wav', 'ogg'].includes(extension)) {
+            mediaElement.innerHTML = `<audio controls><source src="${media}" type="audio/${extension}"></audio>`;
+        } else {
+            mediaElement.innerHTML = `<p style="color: red; font-weight: bold; font-style: italic; font-size: 12px;">Unsupported file type: ${extension}</p>`;
+        }
+
+        mediaContainer.appendChild(mediaElement);
+        messageWrapper.appendChild(mediaContainer);
+    }
+
+    messagesContainer.appendChild(messageWrapper);
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
 }

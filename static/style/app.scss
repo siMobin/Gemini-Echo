@@ -192,6 +192,7 @@ body {
 
     .message {
         display: flex;
+        flex-direction: column;
         padding: .5em .8em;
         border-radius: 12px;
         margin: 1em;
@@ -203,6 +204,39 @@ body {
         strong {
             font-size: 14px;
         }
+
+        @mixin uploaded-file {
+            max-width: 100%;
+            object-fit: cover;
+            object-position: center;
+            border-radius: .5em;
+
+        }
+
+        img,
+        video {
+            @include uploaded-file;
+            height: 300px;
+        }
+
+        audio {
+            @include uploaded-file;
+
+            // &::-webkit-media-controls-panel {
+            //     border-radius: 0em !important;
+            //     background-color: $bg;
+            // }
+        }
+
+        // audio::-webkit-media-controls-play-button,
+        // audio::-webkit-media-controls-current-time-display,
+        // audio::-webkit-media-controls-time-remaining-display,
+        // audio::-webkit-media-controls-timeline,
+        // audio::-webkit-media-controls-volume-slider,
+        // audio::-webkit-media-controls-mute-button,
+        // audio::-webkit-media-controls-overflow-button {
+        //     filter: invert(1);
+        // }
     }
 
     .user-message {
