@@ -1,9 +1,13 @@
 const sendButton = document.getElementById('send-button');
 const messageInput = document.getElementById('message-input');
 const messagesContainer = document.getElementById('messages');
-const mediaInput = document.getElementById('media-input'); // file input for media
+const mediaInput = document.getElementById('media-input');
+const inputContainer = document.getElementById('input-container');
+
+let mediaPreview = null; // Stores floating preview
 
 sendButton.addEventListener('click', sendMessage);
+mediaInput.addEventListener('change', previewMedia);
 
 messageInput.addEventListener('keydown', function (event) {
     if (event.key === 'Enter' && !event.shiftKey) {
@@ -14,7 +18,63 @@ messageInput.addEventListener('keydown', function (event) {
     }
 });
 
+function previewMedia() {
+    if (mediaPreview) {
+        mediaPreview.remove(); // Remove existing preview
+    }
 
+    const file = mediaInput.files[0];
+    if (!file) return;
+
+    const fileURL = URL.createObjectURL(file);
+    const fileType = file.type.split('/')[0];
+
+    mediaPreview = document.createElement('div');
+    mediaPreview.classList.add('file-input-preview');
+    mediaPreview.innerHTML = `<span class="remove-preview">&times;</span>`; // Close button
+
+    const removePreview = mediaPreview.querySelector('.remove-preview');
+    removePreview.addEventListener('click', () => {
+        mediaPreview.remove();
+        mediaPreview = null;
+        mediaInput.value = ''; // Reset file input
+    });
+
+    let mediaElement;
+    if (fileType === 'image') {
+        mediaElement = document.createElement('img');
+        mediaElement.src = fileURL;
+    } else if (fileType === 'video') {
+        mediaElement = document.createElement('video');
+        mediaElement.src = fileURL;
+        mediaElement.controls = false;
+        mediaElement.autoplay = true;
+        mediaElement.loop = true;
+        mediaElement.muted = false;
+    } else if (fileType === 'audio') {
+        mediaElement = document.createElement('audio');
+        mediaElement.src = fileURL;
+        mediaElement.controls = true;
+        mediaElement.autoplay = true;
+        mediaElement.loop = true;
+        mediaElement.muted = false;
+    } else {
+        mediaElement = document.createElement('p');
+        mediaElement.textContent = 'Unsupported file type';
+    }
+
+    mediaPreview.appendChild(mediaElement);
+    document.body.appendChild(mediaPreview); // Make it float above everything
+
+    positionPreview();
+}
+
+function positionPreview() {
+    if (!mediaPreview) return;
+    const rect = inputContainer.getBoundingClientRect();
+    mediaPreview.style.top = `${rect.top - 80}px`; // Adjust position above input
+    mediaPreview.style.left = `${rect.left + 10}px`; // Align with input
+}
 
 function sendMessage() {
     const message = messageInput.value.trim();
@@ -22,15 +82,16 @@ function sendMessage() {
 
     if (!message && !mediaFile) return;
 
-    // Convert media file to a temporary URL for preview
     const mediaURL = mediaFile ? URL.createObjectURL(mediaFile) : null;
-
-    // Ensure message and media stay together under 'user'
     addMessage(message, 'user', mediaURL, mediaFile ? mediaFile.name : null);
 
     // Clear input fields
     messageInput.value = '';
     mediaInput.value = '';
+    if (mediaPreview) {
+        mediaPreview.remove();
+        mediaPreview = null;
+    }
 
     // Send to server
     const formData = new FormData();
@@ -58,20 +119,18 @@ function addMessage(message, sender, media = null, mediaName = null) {
     const messageWrapper = document.createElement('section');
     messageWrapper.classList.add('message', `${sender}-message`);
 
-    // Append text if available
     if (message) {
         const textElement = document.createElement('md-block');
         textElement.textContent = message;
         messageWrapper.appendChild(textElement);
     }
 
-    // Append media
     if (media && mediaName) {
         const mediaContainer = document.createElement('div');
         mediaContainer.classList.add('media-container');
 
         if (message) {
-            mediaContainer.appendChild(document.createElement('br')); // Add break if there's text
+            mediaContainer.appendChild(document.createElement('br'));
         }
 
         const mediaElement = document.createElement('div');
