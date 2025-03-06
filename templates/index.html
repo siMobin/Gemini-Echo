@@ -17,6 +17,13 @@
             <img src="{{ url_for('static', filename='couple-min.svg') }}" loading="lazy" alt="">
             <md-block>{{pre_1}}</md-block>
         </div>
+        <div class="foot-note">
+            <span>Gemini Echo</span>
+            <i class="fa-brands fa-github fa-flip"></i>
+            <a href="https://github.com/siMobin">
+                <span>siMobin</span>
+            </a>
+        </div>
     </div>
     <div id="chat-container">
         <div id="messages">
@@ -27,7 +34,7 @@
         </div>
         <div id="input-container">
             <span class="files">
-                <input type="file" id="media-input" accept="image/*,audio/*,video/*">
+                <input type="file" id="media-input">
             </span>
             <textarea type="text" id="message-input" autofocus placeholder="Type a message..."></textarea>
             <button id="send-button"><i class="fa-solid fa-arrow-up"></i></button>

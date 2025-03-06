@@ -18,6 +18,16 @@ messageInput.addEventListener('keydown', function (event) {
     }
 });
 
+let fileKeywords = { videos: [], images: [], audios: [] };
+
+fetch('/get-keywords')
+    .then(response => response.json())
+    .then(data => {
+        fileKeywords = data; // Store JSON data globally
+    })
+    .catch(error => console.error('Error fetching JSON:', error));
+
+
 function previewMedia() {
     if (mediaPreview) {
         mediaPreview.remove(); // Remove existing preview
@@ -58,6 +68,10 @@ function previewMedia() {
         mediaElement.autoplay = true;
         mediaElement.loop = true;
         mediaElement.muted = false;
+    } else if (fileKeywords.documents.includes(`.${file.name.split('.').pop().toLowerCase()}`)) {
+        mediaElement = document.createElement('p');
+        mediaElement.innerHTML = `<span class="file-icon"><i class="fa-solid fa-file"></i></span> <span class="file-name">${file.name}</span>`;
+
     } else {
         mediaElement = document.createElement('p');
         mediaElement.textContent = 'Unsupported file type';
@@ -115,6 +129,7 @@ function sendMessage() {
         });
 }
 
+
 function addMessage(message, sender, media = null, mediaName = null) {
     const messageWrapper = document.createElement('section');
     messageWrapper.classList.add('message', `${sender}-message`);
@@ -136,12 +151,14 @@ function addMessage(message, sender, media = null, mediaName = null) {
         const mediaElement = document.createElement('div');
         const extension = mediaName.split('.').pop().toLowerCase();
 
-        if (['png', 'jpg', 'jpeg', 'gif', 'webp'].includes(extension)) {
+        if (fileKeywords.images.includes(`.${extension}`)) {
             mediaElement.innerHTML = `<img src="${media}" alt="">`;
-        } else if (['mp4', 'webm', 'ogg'].includes(extension)) {
+        } else if (fileKeywords.videos.includes(`.${extension}`)) {
             mediaElement.innerHTML = `<video controls><source src="${media}" type="video/${extension}"></video>`;
-        } else if (['mp3', 'wav', 'ogg'].includes(extension)) {
+        } else if (fileKeywords.audios.includes(`.${extension}`)) {
             mediaElement.innerHTML = `<audio controls><source src="${media}" type="audio/${extension}"></audio>`;
+        } else if (fileKeywords.documents.includes(`.${extension}`)) {
+            mediaElement.innerHTML = `<span class="file-icon"><i class="fa-solid fa-file"></i></span> <span class="file-name">${mediaName}</span>`;
         } else {
             mediaElement.innerHTML = `<p style="color: red; font-weight: bold; font-style: italic; font-size: 12px;">Unsupported file type: ${extension}</p>`;
         }

@@ -122,6 +122,34 @@ body {
                 }
             }
 
+            .foot-note {
+                z-index: 9999;
+                position: absolute;
+                left: 0;
+                bottom: 0;
+                padding: .5em;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: .5em;
+
+                span {
+                    font-size: 10px;
+                }
+
+                .fa-github:is(.fa-flip) {
+                    animation-duration: 5s;
+                }
+
+                a {
+                    text-decoration: none;
+
+                    :hover {
+                        text-decoration: underline;
+                    }
+                }
+
+            }
         }
     }
 }
@@ -211,7 +239,6 @@ body {
             object-fit: cover;
             object-position: center;
             border-radius: .5em;
-
         }
 
         img,
@@ -238,6 +265,24 @@ body {
         // audio::-webkit-media-controls-overflow-button {
         //     filter: invert(1);
         // }
+        div:has(.file-icon) {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: flex;
+            align-items: center;
+            margin-top: .5em;
+
+            i {
+                font-size: 24px;
+            }
+
+            .file-name {
+                font-size: 12px;
+                font-style: italic;
+                margin-left: .5em;
+            }
+        }
     }
 
     .user-message {
@@ -308,6 +353,7 @@ body {
             scale: 500%;
             overflow: hidden;
             cursor: pointer;
+            z-index: 999;
         }
     }
 
@@ -340,7 +386,6 @@ body {
     flex-direction: column;
     align-items: center;
 
-
     img,
     video {
         // max-width: 100px;
@@ -354,6 +399,24 @@ body {
 
     audio {
         width: 160px;
+    }
+
+    p:has(.file-icon) {
+        max-width: 130px !important;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        display: flex;
+        align-items: center;
+        gap: .5em;
+
+        i {
+            font-size: 24px;
+        }
+
+        .file-name {
+            font-size: 12px;
+        }
     }
 
     .remove-preview {

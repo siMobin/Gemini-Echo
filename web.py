@@ -5,10 +5,10 @@ from requests import get
 from google import genai
 from dotenv import load_dotenv
 from Functions.Data import MK_File
-from Functions.Files import upload_video
+from Functions.Files import read_file, upload_video
 from werkzeug.utils import secure_filename
 from Functions.Main_Response import process_prompt
-from flask import Flask, render_template, request, jsonify, url_for
+from flask import Flask, render_template, request, jsonify, url_for, send_from_directory
 
 
 load_dotenv()
@@ -43,6 +43,11 @@ response = process_prompt(greeting, log_file)
 @app.route("/")
 def index():
     return render_template("index.html", greeting=response, pre_1=pre_1)
+
+
+@app.route("/get-keywords")
+def get_keywords():
+    return send_from_directory("instructions", "keywords.json")
 
 
 @app.route("/chat", methods=["POST"])
@@ -82,6 +87,11 @@ def chat():
             media_audio = client.files.upload(file=file_path)
         elif file_extension in keywords["videos"]:
             media_video = upload_video(file_path, client)
+        elif file_extension in keywords["documents"]:
+            print(file_path)
+            info = read_file(file_path)
+            print(f"Read file content: {info}")  # Check what info contains
+            user_message = info + "\n\n\n" + user_message
         else:
             print(f"Unsupported file type: {file_extension}")  # Debugging line
             return jsonify({"error": "Unsupported file type"}), 400
