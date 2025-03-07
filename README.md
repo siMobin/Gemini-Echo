@@ -19,6 +19,15 @@
 
 ---
 
+**Table of Contents**
+
+- [Project Structure](#project-structure)
+- [Setup and Installation](#setup-and-installation)
+- [Usage](#usage)
+- [System Requirements](#system-requirements)
+- [Contributing](#contributing)
+- [Acknowledgments](#acknowledgments)
+
 ### Project Structure
 
 The project is organized into the following directories and files:
@@ -26,7 +35,9 @@ The project is organized into the following directories and files:
 - `Functions`: Contains Python modules for various functionalities, including file handling, input processing, memory management and so on.
 - `instructions`: Stores JSON files containing system instructions, commands, and keywords.
 - `Data`: Stores conversation data in YAML files.
-- `app.py`: Entry point of the application.
+- `templates`: HTML templates for the web interface.
+- `static`: Static files & storage for the web interface.
+- `app.py`, `web.py`: Entry points for the command line interface and web interface.
 
 ---
 
@@ -36,7 +47,7 @@ To set up the project,
 
 1. Clone the repository.
    - `git clone git@github.com:siMobin/Gemini-Echo.git`
-2. Run `setup.ps1` in PowerShell setup the project environment:
+2. Run `setup.ps1` in PowerShell(Windows) to setup the project environment:
    - It will automatically create a virtual environment named **Gemini Echo** and install the required dependencies using pip.
    - It also activates the virtual environment for you.
 3. Set up the environment variables in the `.env` file:
@@ -44,14 +55,14 @@ To set up the project,
    - **`GEMINI_MODEL_ID`**: [Model](https://aistudio.google.com/) you want to use.
    - **`WARM_AT_STARTUP`**: _`true`_ or _`false`_ to enable/disable the startup response.
    - **`STARTUP_TEMPERATURE`, `TEMPERATURE`**: _`(float - 0.0 to 2.0)`_ Higher values give _AI_ more freedom.
-4. Run the application using `run.bat` (on Windows) or `run.sh` (on Linux/Mac).
+   - & others...
+4. Run the application using-
+   - `python app.py` - to run the command line interface
+   - `python web.py` - to run the web interface
 
 > [!NOTE]
-> You may need to install `git lfs` to work `instructions` file.
->
-> `setup.ps1` may not work on **Linux/Mac**.  
-> _Try `PowerShell 7.x.x` on that case._  
-> You may need to setup manually on that case.
+> You may need to use `git lfs` to pull files from git LFS.
+> _Run `git lfs install` and `git lfs pull` to pull files from git LFS._
 
 **Setup manually...**
 
@@ -64,9 +75,9 @@ To set up the project,
 > - Activate the virtual environment: _`.\Gemini Echo\Scripts\Activate.ps1`\_\_(windows)_, _`source "Gemini Echo/bin/activate"`\_\_(linux)_
 > - Install dependencies: _`pip install -r requirements.txt`_
 > - Set up the environment variables in the `.env` file
-> - Run the application: _`python app.py`_
+> - Run the application: _`python app.py`_ or _`python web.py`_
 
-###
+<br>
 
 > [!TIP]
 > You can use Google _[`Project IDX`](https://idx.google.com/)_ to run it in a virtual workspace.
@@ -80,8 +91,11 @@ To set up the project,
 Once the application is running, you can interact with Gemini by typing commands or just asking questions.
 
 - **Commands**:
-  - `/>>` _or_ `$>` Insert any file _(path - relative or absolute)_ into the conversation.
+  - `/>>` _or_ `$>` _(console)_ Insert any file _(path - relative or absolute)_ into the conversation.
   - Some **memorization** commands like `remember`, `mind it`, `note that` etc are used to store long-term memory. _See [instructions](instructions/keywords.json) for details._
+  - Some **farewells** like `exit`, `quit`, `bye`, `good bye` etc are used to end the conversation.
+  - `shift + down` _(console)_ or `shift + enter` _(web)_ used for line break.
+  - `enter` submits the input.
 
 > [!IMPORTANT]
 >
@@ -143,3 +157,4 @@ This project uses Google [**GenAI**](https://ai.google.dev/) API for generating 
 - [API Docs](https://ai.google.dev/gemini-api/docs/quickstart?lang=python)
 - [AI Studio](https://aistudio.google.com/)
 - [Multimodal Live API in _Google AI Studio_](https://aistudio.google.com/app/live)
+- [Project IDX](https://idx.google.com/)
