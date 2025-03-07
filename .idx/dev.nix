@@ -22,14 +22,20 @@
       "ms-python.debugpy"
       "visualstudioexptteam.vscodeintellicode"
       "ms-python.vscode-pylance"
+      "glenn2223.live-sass"
+      "yzhang.markdown-all-in-one"
       # "vscodevim.vim"
     ];
 
-    # Enable previews
+    # Enable previews and customize configuration
     previews = {
       enable = true;
       previews = {
-        # Web preview
+        web = {
+          command = [ "sh" "-c" "source .venv/bin/activate && python -m flask --app web run -p $PORT --debug" ];
+          env = { PORT = "$PORT"; };
+          manager = "web";
+        };
       };
     };
 

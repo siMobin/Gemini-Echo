@@ -1,7 +1,7 @@
-from prompt_toolkit import prompt
-from prompt_toolkit.key_binding import KeyBindings
-from rich.markdown import Markdown
 from rich.console import Console
+from prompt_toolkit import prompt
+from rich.markdown import Markdown
+from prompt_toolkit.key_binding import KeyBindings
 
 
 def multiline_input():
