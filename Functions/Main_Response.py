@@ -80,11 +80,14 @@ def process_prompt(prompt, log_file, image=None, media_audio=None, media_video=N
                     Markdown(f"**~Image: {file_path}**"), style="i medium_orchid3"
                 )
             elif file_path and file_path.lower().endswith(tuple(keywords["audios"])):
-                media_audio = client.files.upload(file=file_path)
                 console.print(
                     Markdown(f"**~Audio: {file_path}**"), style="i medium_orchid3"
                 )
+                media_audio = client.files.upload(file=file_path)
             elif file_path and file_path.lower().endswith(tuple(keywords["videos"])):
+                console.print(
+                    Markdown(f"**~Video: {file_path}**"), style="i medium_orchid3"
+                )
                 media_video = upload_video(file_path, client)
             elif file_path and file_path.lower().endswith(tuple(keywords["documents"])):
                 console.print(
@@ -93,7 +96,8 @@ def process_prompt(prompt, log_file, image=None, media_audio=None, media_video=N
                 info = read_file(file_path)
                 prompt = info + "\n" + prompt
             else:
-                console.print(Markdown("~ Invalid file format"), style="i yellow")
+                console.print(Markdown("~ Invalid path or file format!"), style="i red")
+                return
         except Exception as e:
             pass
     else:
