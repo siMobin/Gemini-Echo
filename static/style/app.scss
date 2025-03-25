@@ -184,10 +184,25 @@ body {
         md-block {
             // display: block;
             flex-direction: column;
+            overflow-x: hidden;
+
+            @for $i from 1 through 7 {
+                h#{$i} {
+                    margin: 0 0 .3em 0;
+                }
+            }
+
+            pre code,
+            code {
+                white-space: pre-wrap; // Forces the code to wrap
+                word-wrap: break-word; // Breaks long words
+                overflow-wrap: break-word; // Breaks long lines
+            }
 
             p {
                 margin: 0;
                 text-wrap: wrap;
+                overflow-wrap: break-word; // Breaks long lines
                 max-width: 100%;
                 // text-align: justify;
             }

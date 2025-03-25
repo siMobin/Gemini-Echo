@@ -41,8 +41,25 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            function processMarkdownBlocks() {
+                document.querySelectorAll("md-block").forEach(mdBlock => {
+                    if (mdBlock.dataset.parsed) return; // Prevent double parsing
+                    mdBlock.innerHTML = marked.parse(mdBlock.textContent.trim());
+                    mdBlock.dataset.parsed = "true"; // Mark as processed
+                });
+            }
+
+            processMarkdownBlocks(); // Initial run
+            // Observe dynamically added md-block elements
+            const observer = new MutationObserver(processMarkdownBlocks);
+            observer.observe(document.body, { childList: true, subtree: true });
+        });
+    </script>
+
     <script src="{{ url_for('static', filename='script/app.js') }}"></script>
-    <script type="module" src="https://md-block.verou.me/md-block.js"></script>
 </body>
 
 </html>

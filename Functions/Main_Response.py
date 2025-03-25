@@ -8,10 +8,12 @@ from Functions.Files import *
 from Functions.memory import *
 from google.genai import types
 from dotenv import load_dotenv
+from google.genai.types import *
 from rich.console import Console
 from rich.markdown import Markdown
 from Functions.Data import chat_log
 from Functions.Path import extract_path
+
 
 # Load environment variables
 load_dotenv()
@@ -39,8 +41,31 @@ with open(commands_path, "r", encoding="utf-8") as f:
 # System instructions & configuration
 sys_instruct = commands["system_instructions"]
 
+client = genai.Client(api_key=os.getenv("GENAI_API_KEY"))
+model_id = os.getenv("GEMINI_MODEL_ID")
+
+
+def classify_prompt(prompt):
+    """Asks AI to classify the prompt and return the required tool."""
+    classification_response = client.models.generate_content(
+        model=model_id,
+        contents=f"Determine the tool required for this prompt: '{prompt}'. "
+        "Reply with 'search' if it needs a Google search, 'code' if it requires code execution, "
+        "or 'none' if no tool is needed.",
+        config=GenerateContentConfig(temperature=0, response_modalities=["TEXT"]),
+    )
+
+    # Extract classification result
+    classification = (
+        classification_response.candidates[0].content.parts[0].text.strip().lower()
+    )
+    print(f"Required tool: {classification}")
+    return classification
+
 
 def process_prompt(prompt, log_file, image=None, media_audio=None, media_video=None):
+    # Determine the required tool
+    classification = classify_prompt(prompt)
     # Tricky way to handle files and code execution
     if (
         "$>" not in prompt
@@ -49,10 +74,11 @@ def process_prompt(prompt, log_file, image=None, media_audio=None, media_video=N
         and media_audio == None
         and media_video == None
     ):
-        tools = [
-            {"google_search": {}},  # Enables Google Search tool
-            {"code_execution": {}},  # Enables code execution
-        ]
+        tools = []
+        if "search" in classification:
+            tools.append(Tool(google_search=GoogleSearch()))
+        elif "code" in classification:
+            tools.append(Tool(code_execution=ToolCodeExecution()))
     else:
         tools = [
             types.Tool(
@@ -64,9 +90,9 @@ def process_prompt(prompt, log_file, image=None, media_audio=None, media_video=N
             )
         ]
 
-    config = types.GenerateContentConfig(
+    config = GenerateContentConfig(
         system_instruction=sys_instruct
-        + f'Current date/time: {datetime.now(pytz.timezone("Asia/Dhaka")).isoformat(timespec="milliseconds")}',
+        + f'Current date/time: {datetime.datetime.now(pytz.timezone("Asia/Dhaka")).isoformat(timespec="milliseconds")}',
         temperature=os.getenv("TEMPERATURE"),
         tools=tools,
     )
@@ -192,7 +218,7 @@ def process_prompt(prompt, log_file, image=None, media_audio=None, media_video=N
     history.append(f"AI: {output}")
     if len(history) > 20:  # Keep only the last 20 messages
         history.pop(0)
-    time_stamp = datetime.now(pytz.timezone("Asia/Dhaka")).isoformat(
+    time_stamp = datetime.datetime.now(pytz.timezone("Asia/Dhaka")).isoformat(
         timespec="milliseconds"
     )
     console.print("\n", Markdown(output))
