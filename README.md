@@ -3,7 +3,7 @@
 <img src="https://github.com/siMobin/siMobin/raw/main/animated-flame-01.gif" width="21px" align="left"/>
 <img src="https://github.com/siMobin/siMobin/raw/main/animated-flame-01.gif" width="21px" align="right"/>
 <div style="text-align: center; font-style: italic" align="center" padding="60px">
-<b>Gemini Echo</b> is a conversational AI chatbot that interacts with its user as a <a href="#usage">♀</a> partner <code>(system_instructions)</code>. It can understand and analyze text, images, videos, audio, and documents. Additionally, it has memorization capabilities, allowing it to retain and recall information for the future.
+<b>Gemini Echo</b> is a conversational AI chatbot that interacts with its user as a <a href="#usage">♀</a> partner <code>(system_instructions)</code>. It can understand and analyze text, images, videos, audio, and documents also it can generate/modify image. Additionally, it has memorization capabilities, allowing it to retain and recall information for the future.
 </div>
 
 ####
@@ -51,8 +51,8 @@ To set up the project,
    - It will automatically create a virtual environment named **Gemini Echo** and install the required dependencies using pip.
    - It also activates the virtual environment for you.
 3. Set up the environment variables in the `.env` file:
-   - **`GENAI_API_KEY`**: Your Google [GenAI API](https://ai.google.dev/gemini-api/docs/quickstart?lang=python) key.
-   - **`GEMINI_MODEL_ID`**: [Model](https://aistudio.google.com/) you want to use.
+   - **`GENAI_API_KEY`**: [GenAI API](https://ai.google.dev/gemini-api/docs/quickstart?lang=python) key.
+   - **`GEMINI_MODEL_ID`, `GEMINI_IMAGE_MODEL_ID`**: [Model](https://aistudio.google.com/) that will be used to generate responses.
    - **`WARM_AT_STARTUP`**: _`true`_ or _`false`_ to enable/disable the startup response.
    - **`STARTUP_TEMPERATURE`, `TEMPERATURE`**: _`(float - 0.0 to 2.0)`_ Higher values give _AI_ more freedom.
    - & others...

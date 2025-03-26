@@ -2,6 +2,10 @@ import os
 import PIL
 import json
 import pytz
+import base64
+from io import BytesIO
+from PIL import Image
+import PIL.Image as PILImage
 from google import genai
 from datetime import datetime
 from Functions.Files import *
@@ -12,6 +16,7 @@ from google.genai.types import *
 from rich.console import Console
 from rich.markdown import Markdown
 from Functions.Data import chat_log
+from flask import has_request_context
 from Functions.Path import extract_path
 
 
@@ -43,27 +48,57 @@ sys_instruct = commands["system_instructions"]
 
 client = genai.Client(api_key=os.getenv("GENAI_API_KEY"))
 model_id = os.getenv("GEMINI_MODEL_ID")
+# Safety settings
+safety_settings = [
+    types.SafetySetting(
+        category="HARM_CATEGORY_HARASSMENT",
+        threshold="OFF",
+    ),
+    types.SafetySetting(
+        category="HARM_CATEGORY_HATE_SPEECH",
+        threshold="OFF",
+    ),
+    types.SafetySetting(
+        category="HARM_CATEGORY_SEXUALLY_EXPLICIT",
+        threshold="OFF",
+    ),
+    types.SafetySetting(
+        category="HARM_CATEGORY_DANGEROUS_CONTENT",
+        threshold="OFF",
+    ),
+    types.SafetySetting(
+        category="HARM_CATEGORY_CIVIC_INTEGRITY",
+        threshold="OFF",
+    ),
+]
 
 
 def classify_prompt(prompt):
-    """Asks AI to classify the prompt and return the required tool."""
+    """Use AI to classify the prompt and return the required tool."""
     classification_response = client.models.generate_content(
         model=model_id,
-        contents=f"Determine the tool required for this prompt: '{prompt}'. "
+        contents=f"Determine the tool required to process this prompt: '{prompt}'. "
         "Reply with 'search' if it needs a Google search, 'code' if it requires code execution, "
+        "'image' if it needs generation of an image,"
         "or 'none' if no tool is needed.",
-        config=GenerateContentConfig(temperature=0, response_modalities=["TEXT"]),
+        config=GenerateContentConfig(
+            temperature=0,
+            safety_settings=safety_settings,
+            response_modalities=["TEXT"],
+        ),
     )
-
     # Extract classification result
     classification = (
         classification_response.candidates[0].content.parts[0].text.strip().lower()
     )
-    print(f"Required tool: {classification}")
+    if has_request_context():
+        console.print(Markdown(f"Classification: {classification}", style="i yellow"))
+
     return classification
 
 
 def process_prompt(prompt, log_file, image=None, media_audio=None, media_video=None):
+    global ai_model
     # Determine the required tool
     classification = classify_prompt(prompt)
     # Tricky way to handle files and code execution
@@ -89,11 +124,11 @@ def process_prompt(prompt, log_file, image=None, media_audio=None, media_video=N
                 )
             )
         ]
-
     config = GenerateContentConfig(
         system_instruction=sys_instruct
         + f'Current date/time: {datetime.datetime.now(pytz.timezone("Asia/Dhaka")).isoformat(timespec="milliseconds")}',
         temperature=os.getenv("TEMPERATURE"),
+        safety_settings=safety_settings,
         tools=tools,
     )
 
@@ -128,6 +163,37 @@ def process_prompt(prompt, log_file, image=None, media_audio=None, media_video=N
             pass
     else:
         pass
+
+    # Image generation
+    image_path = None  # Initialize image_path
+    if "image" in classification:
+        if image:
+            imgPrompt = [[prompt], image]  # Edit image or image to image generation
+        else:
+            imgPrompt = [prompt]
+        ai_model = os.getenv("GEMINI_IMAGE_MODEL_ID")
+        response = client.models.generate_content(
+            model="gemini-2.0-flash-exp-image-generation",
+            contents=imgPrompt,
+            config=GenerateContentConfig(
+                safety_settings=safety_settings,
+                response_modalities=["Text", "Image"],
+            ),
+        )
+        for part in response.candidates[0].content.parts:
+            if part.inline_data is not None:
+                image_path = f"static/uploads/{datetime.datetime.now(pytz.timezone('Asia/Dhaka')).strftime('%Y%m%d_%H%M%S_%f')[:-3]}_gemini-native-image-generation.png"
+                genImg = PILImage.open(BytesIO((part.inline_data.data)))
+                console.print(Markdown("~Generating image..."), style="i blue")
+                genImg.save(image_path)
+                console.print(
+                    Markdown(f"~Image generated at- {image_path}"),
+                    style="i green",
+                )
+                try:
+                    genImg.show()
+                except Exception as e:
+                    pass
 
     if prompt.lower() in keywords["farewells"]:
         console.print(Markdown("**See you again... Goodbye!** 👋"))
@@ -223,7 +289,7 @@ def process_prompt(prompt, log_file, image=None, media_audio=None, media_video=N
     )
     console.print("\n", Markdown(output))
     chat_log(log_file, time_stamp, prompt, output)
-    return output
+    return output, image_path  # Return the image path
 
 
 """

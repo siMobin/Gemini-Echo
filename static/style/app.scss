@@ -313,6 +313,14 @@ body {
         p {
             margin-bottom: .5em !important;
         }
+
+        .generated-image {
+            width: 100%;
+            height: auto;
+            max-height: 50vh;
+            object-fit: cover;
+            position: relative;
+        }
     }
 }
 

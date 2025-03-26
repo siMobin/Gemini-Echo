@@ -5,9 +5,9 @@ from requests import get
 from google import genai
 from dotenv import load_dotenv
 from Functions.Data import MK_File
-from Functions.Files import read_file, upload_video
 from werkzeug.utils import secure_filename
-from Functions.Main_Response import process_prompt
+from Functions.getResponse import process_prompt
+from Functions.Files import read_file, upload_video
 from flask import Flask, render_template, request, jsonify, url_for, send_from_directory
 
 
@@ -42,6 +42,8 @@ response = process_prompt(greeting, log_file)
 
 @app.route("/")
 def index():
+    greeting = commands["web_startup"]
+    response, _ = process_prompt(greeting, log_file)  # Discard the image_path
     return render_template("index.html", greeting=response, pre_1=pre_1)
 
 
@@ -54,10 +56,6 @@ def get_keywords():
 def chat():
     user_message = request.form.get("message")
     media_file = request.files.get("media")
-
-    # Debugging log to check if message and media file are received
-    print(f"Received user message: {user_message}")
-    print(f"Received media file: {media_file}")
 
     if not user_message:
         return jsonify({"error": "No message provided"}), 400
@@ -73,8 +71,6 @@ def chat():
         filename = secure_filename(media_file.filename)
         file_extension = f".{filename.rsplit('.', 1)[1].lower()}"
 
-        # Debug
-        print(f"File extension: {file_extension}")  # Debugging line
         # Save the file to the server
         file_path = os.path.join(UPLOAD_FOLDER, filename)
         media_file.save(file_path)
@@ -88,17 +84,12 @@ def chat():
         elif file_extension in keywords["videos"]:
             media_video = upload_video(file_path, client)
         elif file_extension in keywords["documents"]:
-            print(file_path)
             info = read_file(file_path)
-            print(f"Read file content: {info}")  # Check what info contains
             user_message = info + "\n\n\n" + user_message
         else:
-            print(f"Unsupported file type: {file_extension}")  # Debugging line
             return jsonify({"error": "Unsupported file type"}), 400
-    else:
-        print("No media file uploaded or unsupported file type.")  # Debugging line
 
-    response = process_prompt(
+    response, image_path = process_prompt(
         user_message,
         log_file,
         image=image,
@@ -106,7 +97,9 @@ def chat():
         media_video=media_video,
     )
 
-    return jsonify({"response": response, "media": media_path})
+    return jsonify(
+        {"response": response, "media": media_path, "image_path": image_path}
+    )
 
 
 if __name__ == "__main__":

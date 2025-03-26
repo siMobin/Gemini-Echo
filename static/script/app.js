@@ -121,7 +121,7 @@ function sendMessage() {
         .then(response => response.json())
         .then(data => {
             if (data.response) {
-                addMessage(data.response, 'bot', data.media || null, data.mediaName || null);
+                addMessage(data.response, 'bot', data.media || null, data.mediaName || null, data.image_path || null);
             }
         })
         .catch(error => {
@@ -130,7 +130,7 @@ function sendMessage() {
 }
 
 
-function addMessage(message, sender, media = null, mediaName = null) {
+function addMessage(message, sender, media = null, mediaName = null, imagePath = null) {
     const messageWrapper = document.createElement('section');
     messageWrapper.classList.add('message', `${sender}-message`);
 
@@ -165,6 +165,14 @@ function addMessage(message, sender, media = null, mediaName = null) {
 
         mediaContainer.appendChild(mediaElement);
         messageWrapper.appendChild(mediaContainer);
+    }
+
+    if (imagePath) {
+        const imageElement = document.createElement('a');
+        imageElement.href = imagePath;
+        imageElement.download = imagePath.split('/').pop();
+        imageElement.innerHTML = `<img class="generated-image" src="${imagePath}" alt="Generated Image">`;
+        messageWrapper.appendChild(imageElement);
     }
 
     messagesContainer.appendChild(messageWrapper);

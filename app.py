@@ -11,7 +11,7 @@ from Functions.Files import *
 from Functions.memory import *
 from Functions.Data import chat_log, MK_File
 from Functions.Input import multiline_input
-from Functions.Main_Response import process_prompt
+from Functions.getResponse import process_prompt
 
 
 # Load environment variables
